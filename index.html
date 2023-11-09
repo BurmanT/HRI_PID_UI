@@ -157,15 +157,74 @@
       />
       <div class="responsive-flex">
         <div class="grid-container">
-          <h2 class="motor-label">Motor</h2>
-          <div id="play-gauge" class="gauge">
-            <div class="gauge-body">
-              <div class="gauge-fill"></div>
+          <div id="motor-box" class="explore-box">
+            <h2>Proportional</h2>
+            <div id="motor-items" class="flex">
+              <div id="explore-gauge" class="gauge">
+                <div class="gauge-body">
+                  <div class="gauge-fill-p"></div>
+                  <div class="gauge-cover"></div>
+                </div>
+                <h3 id="explore-motor-value" class="motor-value"></h3>
+              </div>
+              <div id="slider-items" class="flex-column">
+                <p class="motor-high">180</p>
+                <input
+                  class="motor-slider"
+                  type="range"
+                  min="0"
+                  max="180"
+                  value="90"
+                  oninput="setP(this.value)"
+                />
+                <p class="motor-low">0</p>
+              </div>
             </div>
-            <h3 id="play-motor-value" class="motor-value"></h3>
+            <h2>Integral</h2>
+            <div id="motor-items" class="flex">
+              <div id="explore-gauge" class="gauge">
+                <div class="gauge-body">
+                  <div class="gauge-fill-i"></div>
+                  <div class="gauge-cover"></div>
+                </div>
+                <h3 id="explore-motor-value" class="motor-value"></h3>
+              </div>
+              <div id="slider-items" class="flex-column">
+                <p class="motor-high">180</p>
+                <input
+                  class="motor-slider"
+                  type="range"
+                  min="0"
+                  max="180"
+                  value="90"
+                  oninput="setI(this.value)"
+                />
+                <p class="motor-low">0</p>
+              </div>
+            </div>
+            <h2>Derivative</h2>
+            <div id="motor-items" class="flex">
+              <div id="explore-gauge" class="gauge">
+                <div class="gauge-body">
+                  <div class="gauge-fill-d"></div>
+                  <div class="gauge-cover"></div>
+                </div>
+                <h3 id="explore-motor-value" class="motor-value"></h3>
+              </div>
+              <div id="slider-items" class="flex-column">
+                <p class="motor-high">180</p>
+                <input
+                  class="motor-slider"
+                  type="range"
+                  min="0"
+                  max="180"
+                  value="90"
+                  oninput="setD(this.value)"
+                />
+                <p class="motor-low">0</p>
+              </div>
+            </div>
           </div>
-          <p id="train-motor-high" class="motor-high">180</p>
-          <p id="train-motor-low" class="motor-low">0</p>
           <canvas
             id="play-canvas-graph"
             class="canvas-graph"
@@ -459,6 +518,29 @@
         }
       }
 
+      // NEW: Called when the user sets the Proportional value.
+      function setP(val) {
+        // Update the P gauge position
+        document.querySelector(".gauge-fill-p").style.transform = `rotate(${val/360}turn)`
+
+        // TODO(Mark): record this info or smth
+      }
+      // NEW: Called when the user sets the Integral value.
+      function setI(val) {
+        // Update the P gauge position
+        document.querySelector(".gauge-fill-i").style.transform = `rotate(${val/360}turn)`
+
+        // TODO(Mark): record this info or smth
+      }
+      // NEW: Called when the user sets the Derivative value.
+      function setD(val) {
+        // Update the P gauge position
+        document.querySelector(".gauge-fill-d").style.transform = `rotate(${val/360}turn)`
+
+        // TODO(Mark): record this info or smth
+      }
+
+
       //called when the user moves the motor slider
       function moveMotor(val) {
         //update both sliders with this value
@@ -733,7 +815,7 @@
       //functions that run on website load
       resizeCanvas();
       updateMotorValLabel();
-      changePage("explore");
+      changePage("play");
     </script>
   </body>
 </html>

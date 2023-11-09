@@ -116,7 +116,11 @@ p {
 
 #motor-items {
   /* the gauge inherits this height */
-  height: 80%;
+  height: 33%;
+
+  /* This padding is a hack, and should be removed when the labels are 
+     presented on the side, not on top of the gauges. */
+  padding-bottom: 5%;
 }
 
 .flex-column {
@@ -186,6 +190,41 @@ p {
   overflow: hidden;
 }
 .gauge-fill {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: #06a5ff;
+  transform-origin: center left;
+  transition: transform 0.2s ease-out;
+  transform: rotate(0.25turn);
+}
+
+/* NEW: Specific gauge-fill styles for the P, I, and D values */
+.gauge-fill-p {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: #ff7455;
+  transform-origin: center left;
+  transition: transform 0.2s ease-out;
+  transform: rotate(0.25turn);
+}
+.gauge-fill-i {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: #73dc59;
+  transform-origin: center left;
+  transition: transform 0.2s ease-out;
+  transform: rotate(0.25turn);
+}
+.gauge-fill-d {
   position: absolute;
   left: 100%;
   top: 0;
