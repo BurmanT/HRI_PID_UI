@@ -1,0 +1,493 @@
+* {
+  font-family: Poppins;
+  box-sizing: border-box;
+}
+
+/* tabs */
+
+.tab-container {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.tab-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #232323;
+  color: white;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  height: 90px;
+  width: 100%;
+}
+
+.tab-link:hover {
+  opacity: 0.8;
+}
+
+.tab-label {
+  display: inline;
+}
+
+/* motor and sensor square boxes on the explore page */
+
+.explore-box {
+  text-align: center;
+  /* this makes them squares */
+  aspect-ratio: 1/1;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+#sensor-box {
+  background-color: rgba(255, 199, 0, 0.35);
+}
+
+#motor-box {
+  background-color: rgba(6, 165, 255, 0.35);
+}
+
+/* fonts */
+
+h1 {
+  font-size: 35px;
+  font-weight: 900;
+}
+
+h2 {
+  font-size: 25px;
+  font-weight: 700;
+  color: #232323;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #232323;
+}
+
+p {
+  font-size: 18px;
+  font-weight: 400;
+  color: #232323;
+}
+
+h1,
+h2,
+h3,
+p {
+  padding: 0px;
+  border: 0px;
+  margin: 0px;
+}
+
+/* containers */
+
+.root-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  text-align: center;
+  margin-top: 20px;
+  z-index: 1;
+}
+
+.flex,
+.responsive-flex {
+  display: flex;
+  margin: auto;
+  margin-top: 20px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.responsive-flex {
+  margin-top: 0px;
+}
+
+#sensor-bar-labels {
+  height: 15%;
+  max-height: 40px;
+}
+
+#motor-items {
+  /* the gauge inherits this height */
+  height: 80%;
+}
+
+.flex-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.page {
+  margin: auto;
+  margin-top: 20px;
+  width: 100vw;
+  text-align: center;
+}
+
+.sensor-items {
+  margin-top: 20px;
+}
+
+.training-values {
+  margin: 20px;
+  text-align: center;
+}
+
+.motor-slider {
+  -webkit-appearance: slider-vertical;
+  height: 80%;
+  width: 20px;
+  margin: auto 20px;
+  border-style: 1px solid #232323;
+}
+
+#train-motor-slider {
+  height: 100%;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  grid-column-start: 3;
+  grid-column-end: 4;
+  margin: auto;
+  margin-right: 30px;
+}
+
+.gauge {
+  height: 80%;
+  aspect-ratio: 1/2;
+  position: relative;
+}
+
+#train-gauge,
+#play-gauge {
+  height: 100%;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+.gauge-body {
+  height: 100%;
+  aspect-ratio: 1/2;
+  background: #232323;
+  position: relative;
+  border-top-left-radius: 200% 100%;
+  border-bottom-left-radius: 200% 100%;
+  overflow: hidden;
+}
+.gauge-fill {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: #06a5ff;
+  transform-origin: center left;
+  transition: transform 0.2s ease-out;
+  transform: rotate(0.25turn);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  width: fit-content;
+  gap: 20px;
+}
+
+/* sensor progress bar */
+
+.sensor-bar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #ffdb5e;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 5px;
+}
+
+#train-sensor-bar {
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  grid-column-start: 4;
+  grid-column-end: 5;
+  grid-row-start: 4;
+  grid-row-end: 5;
+}
+
+.sensor-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: #f3be00;
+  transition: all 0.2s;
+}
+
+.sensor-bar-text {
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  transform: translateY(-50%);
+  color: #232323;
+}
+
+/* buttons */
+
+.sensor-selector {
+  max-width: 200px;
+  margin: auto;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  padding: 5px;
+}
+
+.button {
+  border: none;
+  border-radius: 20px;
+  padding: 15px;
+  /* h2 font */
+  font-size: 25px;
+  font-weight: 700;
+  color: white;
+}
+
+.button:hover {
+  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.2s ease-in-out;
+  /* makes the button a shade lighter on hover */
+  opacity: 0.9;
+}
+
+#add-value,
+#start {
+  background-color: #4acb67;
+}
+
+#delete {
+  background-color: #ff5151;
+  height: 40px;
+  width: 40px;
+  padding: 0px;
+}
+
+/* static graphics */
+
+.sensor-icon {
+  display: block;
+  width: 20%;
+  margin: auto;
+}
+
+.tab-icon {
+  display: inline;
+  width: 15%;
+  max-width: 50px;
+  aspect-ratio: 1/1;
+  margin-left: 15px;
+}
+
+.clockwise-icon,
+.counter-clockwise-icon {
+  display: none;
+  height: 35px;
+  aspect-ratio: 1/1;
+}
+
+.dividing-line {
+  height: 6px;
+  border-radius: 3px;
+  width: 100%;
+  display: none;
+  background: #232323;
+  margin-bottom: 20px;
+}
+
+.motor-label,
+.sensor-label {
+  text-align: center;
+}
+
+#train-sensor-label {
+  grid-column-start: 4;
+  grid-column-end: 5;
+  grid-row-start: 5;
+  grid-row-end: 6;
+}
+
+.motor-label {
+  writing-mode: vertical-rl;
+  transform: scale(-1);
+  grid-row-start: 2;
+  grid-row-end: 3;
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+.motor-value {
+  text-align: right;
+  position: absolute;
+  margin-left: 0;
+}
+
+#train-sensor-low,
+#grid-clockwise-icon {
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 4;
+  grid-row-end: 5;
+  margin: auto;
+}
+
+#train-sensor-high,
+#grid-counter-clockwise-icon {
+  grid-column-start: 5;
+  grid-column-end: 6;
+  grid-row-start: 4;
+  grid-row-end: 5;
+  margin: auto;
+}
+
+#train-motor-low {
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 3;
+  grid-row-end: 4;
+  text-align: left;
+}
+
+#train-motor-high {
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+#train-motor-low,
+#train-motor-high {
+  margin-left: 0;
+}
+
+.motor-high,
+.motor-low {
+  margin: auto;
+}
+
+/* training values table formatting */
+
+td,
+th {
+  padding: 10px;
+}
+
+.table-heading {
+  color: white;
+}
+
+tr {
+  border: 4px solid #232323;
+}
+
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  border-radius: 20px;
+}
+
+th {
+  background: #232323;
+  color: white;
+}
+
+/* canvas graph */
+
+.canvas-graph {
+  border: 4px solid #232323;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  grid-column-start: 4;
+  grid-column-end: 5;
+}
+
+/* breakpoints */
+
+@media (orientation: landscape) {
+  .explore-box {
+    width: 30vw;
+  }
+
+  .canvas-graph {
+    width: 30vw;
+  }
+}
+
+/* breakpoint: designed for phone in portrait mode */
+
+@media (max-width: 400px) and (orientation: portrait) {
+  .responsive-flex {
+    display: block;
+  }
+
+  .explore-box {
+    width: 75vw;
+    margin: 20px auto;
+  }
+
+  .dividing-line {
+    display: block;
+  }
+
+  #train-gauge,
+  #play-gauge {
+    display: none;
+  }
+
+  .tab-link {
+    flex-direction: column;
+  }
+
+  .tab-icon {
+    margin-left: 0;
+  }
+
+  /* decrease font sizes */
+
+  h1 {
+    font-size: 20px;
+  }
+
+  h2,
+  h3,
+  p,
+  .button,
+  .sensor-selector {
+    font-size: 16px;
+  }
+}
+
+/* breakpoint: designed for tablets in portrait mode */
+@media (min-width: 400px) and (orientation: portrait) {
+  .responsive-flex {
+    display: block;
+  }
+
+  .explore-box {
+    width: 60vw;
+    margin: 20px auto;
+  }
+
+  .dividing-line {
+    display: block;
+  }
+}

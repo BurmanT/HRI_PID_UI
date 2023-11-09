@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      defer="defer"
+      src="https://cdn.jsdelivr.net/gh/gabrielsessions/pyrepl-js/build/main.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Poppins:400,700,900"
+    />
+    <!-- CSS specific to this website -->
+    <link rel="stylesheet" href="pid.css" />
+  </head>
+
+  <body onload="setupSerial();">
+    <! -- tabs -->
+    <div class="tab-container">
+      <button id="explore-tab" class="tab-link" onclick="changePage('explore')">
+        <h1 class="tab-label">Explore</h1>
+        <img class="tab-icon" src="explore_icon.png" />
+      </button>
+      <button id="train-tab" class="tab-link" onclick="changePage('train')">
+        <h1 class="tab-label">Train</h1>
+        <img class="tab-icon" src="train_icon.png" />
+      </button>
+      <button id="play-tab" class="tab-link" onclick="changePage('play')">
+        <h1 class="tab-label">Play</h1>
+        <img class="tab-icon" src="play_icon.png" />
+      </button>
+    </div>
+    <div class="root-container">
+      <div id="root"></div>
+    </div>
+    <! -- explore page -->
+    <div id="explore-page" class="page">
+      <div class="responsive-flex">
+        <div id="motor-box" class="explore-box">
+          <h2>Motor</h2>
+          <div id="motor-items" class="flex">
+            <div id="explore-gauge" class="gauge">
+              <div class="gauge-body">
+                <div class="gauge-fill"></div>
+                <div class="gauge-cover"></div>
+              </div>
+              <h3 id="explore-motor-value" class="motor-value"></h3>
+            </div>
+            <div id="slider-items" class="flex-column">
+              <p class="motor-high">180</p>
+              <input
+                class="motor-slider"
+                type="range"
+                min="0"
+                max="180"
+                value="90"
+                oninput="moveMotor(this.value)"
+              />
+              <p class="motor-low">0</p>
+            </div>
+          </div>
+        </div>
+        <div id="sensor-box" class="explore-box">
+          <h2>Sensor</h2>
+          <select class="sensor-selector" onchange="selectSensor()">
+            <option class="sensor-option" value="none">Choose sensor</option>
+            <option class="sensor-option" value="light">Light</option>
+            <option class="sensor-option" value="distance">Distance</option>
+            <option class="sensor-option" value="dial">Dial</option>
+            <option class="sensor-option" value="slider">Slider</option>
+          </select>
+          <img class="sensor-icon" />
+          <div id="sensor-bar-labels" class="flex">
+            <p class="sensor-low"></p>
+            <img class="clockwise-icon" />
+            <div class="sensor-bar">
+              <div class="sensor-bar-fill"></div>
+              <span class="sensor-bar-text"><h3>0%</h3></span>
+            </div>
+            <p class="sensor-high"></p>
+            <img class="counter-clockwise-icon" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <! -- train page -->
+    <div id="train-page" class="page">
+      <input
+        id="add-value"
+        class="button"
+        type="button"
+        value="Add Value"
+        onclick="addValue(-1, -1)"
+      />
+      <div class="responsive-flex">
+        <div class="grid-container">
+          <h2 class="motor-label">Motor</h2>
+          <div id="train-gauge" class="gauge">
+            <div class="gauge-body">
+              <div class="gauge-fill"></div>
+            </div>
+            <h3 id="train-motor-value" class="motor-value"></h3>
+          </div>
+          <p id="train-motor-high" class="motor-high">180</p>
+          <input
+            type="range"
+            min="0"
+            max="180"
+            value="90"
+            id="train-motor-slider"
+            class="motor-slider"
+            oninput="moveMotor(this.value)"
+          />
+          <p id="train-motor-low" class="motor-low">0</p>
+          <canvas
+            id="train-canvas-graph"
+            class="canvas-graph"
+            width="450"
+            height="350"
+          ></canvas>
+          <p id="train-sensor-low" class="sensor-low"></p>
+          <img id="grid-clockwise-icon" class="clockwise-icon" />
+          <div id="train-sensor-bar" class="sensor-bar">
+            <div class="sensor-bar-fill"></div>
+            <span class="sensor-bar-text"><h3>0%</h3></span>
+          </div>
+          <h2 id="train-sensor-label" class="sensor-label">Sensor</h2>
+          <p id="train-sensor-high" class="sensor-high"></p>
+          <img
+            id="grid-counter-clockwise-icon"
+            class="counter-clockwise-icon"
+          />
+        </div>
+        <div class="training-values">
+          <div class="dividing-line"></div>
+          <h2>Training Values</h2>
+          <table>
+            <thead>
+              <th><h3 class="table-heading">Sensor</h3></th>
+              <th><h3 class="table-heading">Motor</h3></th>
+              <th><h3 class="table-heading">Delete</h3></th>
+            </thead>
+            <tbody id="train-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <! -- play page -->
+    <div id="play-page" class="page">
+      <input
+        id="start"
+        class="button"
+        type="button"
+        value="Start"
+        onclick="startStop()"
+      />
+      <div class="responsive-flex">
+        <div class="grid-container">
+          <h2 class="motor-label">Motor</h2>
+          <div id="play-gauge" class="gauge">
+            <div class="gauge-body">
+              <div class="gauge-fill"></div>
+            </div>
+            <h3 id="play-motor-value" class="motor-value"></h3>
+          </div>
+          <p id="train-motor-high" class="motor-high">180</p>
+          <p id="train-motor-low" class="motor-low">0</p>
+          <canvas
+            id="play-canvas-graph"
+            class="canvas-graph"
+            width="450"
+            height="350"
+          ></canvas>
+
+          <p id="train-sensor-low" class="sensor-low"></p>
+          <img id="grid-clockwise-icon" class="clockwise-icon" />
+          <div id="train-sensor-bar" class="sensor-bar">
+            <div class="sensor-bar-fill"></div>
+            <span class="sensor-bar-text"><h3>0%</h3></span>
+          </div>
+          <h2 id="train-sensor-label" class="sensor-label">Sensor</h2>
+          <p id="train-sensor-high" class="sensor-high"></p>
+          <img
+            id="grid-counter-clockwise-icon"
+            class="counter-clockwise-icon"
+          />
+        </div>
+        <div class="training-values">
+          <div class="dividing-line"></div>
+          <h2>Training Values</h2>
+          <table>
+            <thead>
+              <th><h3 class="table-heading">Sensor</h3></th>
+              <th><h3 class="table-heading">Motor</h3></th>
+            </thead>
+            <tbody id="play-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script>
+      var sensorArray = [];
+      var motorArray = [];
+      let status = "e";
+      var hoverDeleteIndex = -1;
+
+      function hoverDelete(mouseover, button) {
+        console.log("HOVER DELETE");
+        if (mouseover) {
+          var i = button.parentNode.parentNode.rowIndex;
+          //subtract 1 to account for the table header
+          i = i - 1;
+          hoverDeleteIndex = i;
+        } else {
+          hoverDeleteIndex = -1;
+        }
+      }
+
+      class Graph {
+        constructor(c) {
+          // Constructor
+          this.canvas = c;
+          this.ctx = this.canvas.getContext("2d");
+          this.lastSensorVal = 50;
+          this.lastMotorVal = 90;
+          this.redraw(-1);
+        }
+
+        updateSensorVal(sval) {
+          this.lastSensorVal = sval;
+        }
+
+        updateMotorVal(mval) {
+          this.lastMotorVal = mval;
+        }
+
+        redraw(NNi) {
+          //console.log("Update graph");
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.drawSensorLine(this.lastSensorVal);
+          this.drawMotorLine(this.lastMotorVal);
+          for (var i = 0; i < sensorArray.length; i++) {
+            this.drawPoint(sensorArray[i], motorArray[i]);
+          }
+          if (NNi != -1) {
+            this.highlightNN(NNi);
+          }
+          if (hoverDeleteIndex != -1) {
+            this.highlightDelete(hoverDeleteIndex);
+          }
+        }
+
+        highlightDelete(i) {
+          var mval = motorArray[i];
+          var sval = sensorArray[i];
+
+          //highlight that point
+          this.ctx.beginPath();
+          this.ctx.arc(
+            this.convertX(sval),
+            this.convertY(mval),
+            10, //radius
+            0,
+            2 * Math.PI
+          );
+
+          this.ctx.strokeStyle = "#FF5151";
+          this.ctx.stroke();
+        }
+
+        convertX(x) {
+          // Assume the svals are 0-100 convert to a scale - start to bw-start
+          const cx = this.canvas.width * (x / 100);
+          return cx;
+        }
+
+        convertY(y) {
+          // Assume the svals are 0-100 convert to a scale - start to bh-start
+          const cy = (this.canvas.height * (180 - y)) / 180;
+          return cy;
+        }
+
+        drawSensorLine(sval) {
+          this.ctx.beginPath();
+          this.ctx.lineWidth = 4;
+          this.ctx.strokeStyle = "#FFD65C";
+          this.ctx.moveTo(this.convertX(sval), this.convertY(0));
+          this.ctx.lineTo(this.convertX(sval), this.convertY(180));
+          this.ctx.stroke();
+        }
+
+        drawMotorLine(mval) {
+          this.ctx.beginPath();
+          this.ctx.lineWidth = 4;
+          this.ctx.strokeStyle = "#06A5FF";
+          this.ctx.moveTo(this.convertX(0), this.convertY(mval));
+          this.ctx.lineTo(this.convertX(100), this.convertY(mval));
+          this.ctx.stroke();
+        }
+
+        drawPoint(sval, mval) {
+          //Assume the mvals are 0-180 convert to a scale - start+bh to star
+          this.ctx.beginPath();
+          this.ctx.fillStyle = "#232323";
+          this.ctx.arc(
+            this.convertX(sval),
+            this.convertY(mval),
+            5,
+            0,
+            2 * Math.PI
+          );
+
+          this.ctx.fill();
+        }
+
+        highlightNN(i) {
+          //find sval
+          var mval = motorArray[i];
+          var sval = sensorArray[i];
+
+          //highlight that point
+          this.ctx.beginPath();
+          this.ctx.arc(
+            this.convertX(sval),
+            this.convertY(mval),
+            10, //radius
+            0,
+            2 * Math.PI
+          );
+
+          this.ctx.strokeStyle = "#232323";
+          this.ctx.stroke();
+        }
+      }
+
+      //initialize the graph
+      const trainCanvas = document.querySelector("#train-canvas-graph");
+      const playCanvas = document.querySelector("#play-canvas-graph");
+
+      trainGraph = new Graph(trainCanvas);
+      playGraph = new Graph(playCanvas);
+
+      trainGraph.redraw(-1);
+      playGraph.redraw(-1);
+
+      //hide and show the div for each page when the user clicks on tabs
+      function changePage(pageName) {
+        resizeCanvas();
+        console.log("change page");
+        if (pageName == "explore") {
+          document.getElementById("explore-page").style.display = "block";
+          document.getElementById("train-page").style.display = "none";
+          document.getElementById("play-page").style.display = "none";
+
+          document.getElementById("train-tab").style.backgroundColor = "";
+          document.getElementById("play-tab").style.backgroundColor = "";
+          document.getElementById("explore-tab").style.backgroundColor =
+            "#06A5FF";
+          status = "e";
+          stop();
+        } else if (pageName == "train") {
+          document.getElementById("explore-page").style.display = "none";
+          document.getElementById("train-page").style.display = "block";
+          document.getElementById("play-page").style.display = "none";
+
+          document.getElementById("explore-tab").style.backgroundColor = "";
+          document.getElementById("play-tab").style.backgroundColor = "";
+          document.getElementById("train-tab").style.backgroundColor =
+            "#C387FF";
+          status = "t";
+          stop();
+        } else {
+          document.getElementById("explore-page").style.display = "none";
+          document.getElementById("train-page").style.display = "none";
+          document.getElementById("play-page").style.display = "block";
+
+          document.getElementById("explore-tab").style.backgroundColor = "";
+          document.getElementById("train-tab").style.backgroundColor = "";
+          document.getElementById("play-tab").style.backgroundColor = "#4ACB67";
+          status = "p";
+          stop();
+        }
+
+        updateMotorValLabel();
+      }
+
+      //change size of canvas
+      window.onresize = function () {
+        resizeCanvas();
+        updateMotorValLabel();
+      };
+
+      function resizeCanvas() {
+        const canvases = document.querySelectorAll(".canvas-graph");
+        if (window.innerWidth > window.innerHeight) {
+          // breakpoint: designed for landscape
+          canvases.forEach(
+            (element) => (element.width = 0.2 * window.innerWidth)
+          );
+        } else if (window.innerWidth < window.innerHeight) {
+          // breakpoint: designed portrait
+          canvases.forEach(
+            (element) => (element.width = 0.4 * window.innerWidth)
+          );
+        }
+
+        //set the height based on the aspect ratio
+        canvases.forEach(
+          (element) => (element.height = 2 * (element.width / 3))
+        );
+
+        trainGraph.redraw(-1);
+        playGraph.redraw(-1);
+      }
+
+      //change the dichotomy labels based on the selected sensor
+      function selectSensor() {
+        const sensorName = document.querySelector(".sensor-selector").value;
+        const lowLabels = document.querySelectorAll(".sensor-low");
+        const highLabels = document.querySelectorAll(".sensor-high");
+        const icon = document.querySelector(".sensor-icon");
+        const cIcons = document.querySelectorAll(".clockwise-icon");
+        const ccIcons = document.querySelectorAll(".counter-clockwise-icon");
+        if (sensorName == "light") {
+          lowLabels.forEach((element) => (element.innerHTML = "Dark"));
+          highLabels.forEach((element) => (element.innerHTML = "Light"));
+          icon.setAttribute("src", "light_icon.png");
+        } else if (sensorName == "distance") {
+          lowLabels.forEach((element) => (element.innerHTML = "Far"));
+          highLabels.forEach((element) => (element.innerHTML = "Close"));
+          icon.setAttribute("src", "distance_icon.png");
+        } else if (sensorName == "dial") {
+          lowLabels.forEach((element) => (element.innerHTML = ""));
+          highLabels.forEach((element) => (element.innerHTML = ""));
+          icon.setAttribute("src", "dial_icon.png");
+        } else if (sensorName == "slider") {
+          lowLabels.forEach((element) => (element.innerHTML = "Left"));
+          highLabels.forEach((element) => (element.innerHTML = "Right"));
+          icon.setAttribute("src", "slider_icon.png");
+        } else {
+          lowLabels.forEach((element) => (element.innerHTML = ""));
+          highLabels.forEach((element) => (element.innerHTML = ""));
+          icon.setAttribute("src", "");
+        }
+
+        if (sensorName == "dial") {
+          cIcons.forEach((element) => (element.style.display = "block"));
+          ccIcons.forEach((element) => (element.style.display = "block"));
+          cIcons.forEach((element) =>
+            element.setAttribute("src", "clockwise_icon.png")
+          );
+          ccIcons.forEach((element) =>
+            element.setAttribute("src", "counterclockwise_icon.png")
+          );
+        } else {
+          cIcons.forEach((element) => (element.style.display = "none"));
+          ccIcons.forEach((element) => (element.style.display = "none"));
+        }
+      }
+
+      //called when the user moves the motor slider
+      function moveMotor(val) {
+        //update both sliders with this value
+        const sliders = document.querySelectorAll(".motor-slider");
+        sliders.forEach((element) => (element.value = val));
+
+        //update the gauge position
+        const gauges = document.querySelectorAll(".gauge-fill");
+        gauges.forEach(
+          (element) => (element.style.transform = `rotate(${val / 360}turn)`)
+        );
+
+        updateMotorValLabel();
+
+        //update the graph position
+        trainGraph.updateMotorVal(val);
+        playGraph.updateMotorVal(val);
+
+        trainGraph.redraw(-1);
+        playGraph.redraw(-1);
+      }
+
+      function updateMotorValLabel() {
+        console.log("UPDATE MOTOR VAL LABEL");
+        //get the latest value
+        const val = document.querySelector(".motor-slider").value;
+        let gauge;
+        let label;
+
+        if (status == "e") {
+          gauge = document.querySelector("#explore-gauge");
+          label = document.querySelector("#explore-motor-value");
+        } else if (status == "t") {
+          gauge = document.querySelector("#train-gauge");
+          label = document.querySelector("#train-motor-value");
+        } else {
+          gauge = document.querySelector("#play-gauge");
+          label = document.querySelector("#play-motor-value");
+        }
+
+        //update the text
+        label.innerHTML = val;
+
+        //update the position relative to the gauge
+        var valueBottom = (val / 180) * (gauge.offsetHeight - 16);
+
+        //account for height of text
+        valueBottom = valueBottom - label.offsetHeight / 2 + 8;
+        label.style.bottom = `${valueBottom}px`;
+        valueLeft = gauge.offsetWidth + 50;
+        if (status == "p") {
+          valueLeft = valueLeft - 20;
+        }
+        label.style.left = `${valueLeft}px`;
+      }
+
+      function updateSensor(value) {
+        const sensorBarFills = document.querySelectorAll(".sensor-bar-fill");
+        const sensorBarLabels = document.querySelectorAll(".sensor-bar-text");
+        //update the progress bar
+        sensorBarFills.forEach(
+          (element) => (element.style.width = `${value}%`)
+        );
+        sensorBarLabels.forEach(
+          (element) => (element.textContent = `${value}%`)
+        );
+      }
+
+      function addValue(sensorVal, motorVal) {
+        //get the sensor and motor value from the graph if not loading data
+        if (sensorVal == -1 && motorVal == -1) {
+          motorVal = trainGraph.lastMotorVal;
+          sensorVal = trainGraph.lastSensorVal;
+          //add new data point to the python arrays
+          var dictionary = {};
+          dictionary["st"] = "t";
+          dictionary["t"] = 1;
+          dictionary["am"] = motorVal;
+          dictionary["as"] = sensorVal;
+          window.pyrepl.write = JSON.stringify(dictionary);
+          console.log("ADD VALUE JSON");
+        }
+
+        //add new data point to js arrays
+        motorArray.push(motorVal);
+        sensorArray.push(sensorVal);
+
+        //create cells with data
+        var trainc1 = document.createElement("td");
+        var playc1 = document.createElement("td");
+        var trainc2 = document.createElement("td");
+        var playc2 = document.createElement("td");
+        trainc1.innerText = sensorVal;
+        playc1.innerText = sensorVal;
+        trainc2.innerText = motorVal;
+        playc2.innerText = motorVal;
+
+        //create a delete button for the row
+        var deleteButton = document.createElement("button");
+        deleteButton.setAttribute("id", "delete");
+        deleteButton.setAttribute("class", "button");
+        deleteButton.innerHTML = "x";
+        deleteButton.setAttribute("onclick", "deleteValue(this)");
+        deleteButton.addEventListener("mouseover", function () {
+          hoverDelete(true, this);
+        });
+        deleteButton.addEventListener("mouseout", function () {
+          hoverDelete(false, this);
+        });
+
+        //make a cell with the delete button
+        var c3 = document.createElement("td");
+        c3.appendChild(deleteButton);
+
+        //append the cells to the row and the row to the table
+        var deletableRow = document.createElement("tr");
+        deletableRow.appendChild(trainc1);
+        deletableRow.appendChild(trainc2);
+        deletableRow.appendChild(c3);
+        document.querySelector("#train-table").appendChild(deletableRow);
+
+        var row = document.createElement("tr");
+        row.appendChild(playc1);
+        row.appendChild(playc2);
+
+        document.querySelector("#play-table").appendChild(row);
+
+        //redraw the graphs
+        trainGraph.redraw(-1);
+        playGraph.redraw(-1);
+      }
+
+      function deleteValue(deleteButton) {
+        //get the row from the delete button
+        var row = deleteButton.parentNode.parentNode.rowIndex;
+        var tables = document.querySelectorAll("table");
+        tables.forEach((table) => table.deleteRow(row));
+        console.log("row deleted index");
+        console.log(row);
+
+        //subtract 1 to account for the header
+        var i = row - 1;
+
+        //delete value in arrays
+        sensorArray.splice(i, 1);
+        motorArray.splice(i, 1);
+        trainGraph.redraw(-1);
+        playGraph.redraw(-1);
+
+        console.log("delete index");
+        console.log(i);
+
+        //delete data point from python arrays
+
+        var dictionary = {};
+        dictionary["st"] = "t";
+        dictionary["t"] = 1;
+        dictionary["di"] = i; //delete index
+        window.pyrepl.write = JSON.stringify(dictionary);
+
+        //stop highlighting the point that is deleted
+        hoverDeleteIndex = -1;
+      }
+
+      function loadData() {
+        //request the loaded data
+        var dictionary = {};
+        dictionary["st"] = "l";
+        window.pyrepl.write = JSON.stringify(dictionary);
+
+        //read in the loaded data
+        var received = window.pyrepl.read;
+        var lastReceived = received[received.length - 1];
+        if (lastReceived[0] == "{") {
+          //parse JSON to find the motor and sensor array
+          for (var i = 0; i < received.length; i++) {
+            if (received[i][2] == "m") {
+              lastReceived = received[i];
+            }
+          }
+          console.log(lastReceived);
+          var lastJSON = JSON.parse(lastReceived);
+          var motorVals = lastJSON.m;
+          console.log(motorVals);
+          var sensorVals = lastJSON.s;
+          console.log(sensorVals);
+          for (var i = 0; i < motorVals.length; i++) {
+            addValue(sensorVals[i], motorVals[i]);
+          }
+        } else {
+          setTimeout(loadData, 250);
+        }
+      }
+
+      function startStop() {
+        const button = document.getElementById("start");
+        if (button.value == "Start") {
+          var dictionary = {};
+          dictionary["st"] = "p";
+          dictionary["r"] = 1;
+          window.pyrepl.write = JSON.stringify(dictionary);
+
+          //change the button text and color
+          button.value = "Stop";
+          button.style.backgroundColor = "#FF5151";
+        } else {
+          stop();
+        }
+      }
+
+      function stop() {
+        const button = document.getElementById("start");
+        var dictionary = {};
+        dictionary["st"] = status;
+        dictionary["r"] = 0;
+        window.pyrepl.write = JSON.stringify(dictionary);
+
+        //change the button text and color
+        button.value = "Start";
+        button.style.backgroundColor = "#4ACB67";
+      }
+
+      function setupSerial() {
+        if (window.pyrepl && window.pyrepl.isActive) {
+          console.log("DEVICE CONNECTED: about to reboot");
+          window.pyrepl.reboot;
+          console.log("before load data");
+          loadData();
+          console.log("after load data");
+          setInterval(runSerial, 150); // connected, start monitoring
+        } else {
+          setTimeout(setupSerial, 250);
+        }
+      }
+
+      function runSerial() {
+        // should already be connected, but lets double cehck
+        if (window.pyrepl && window.pyrepl.isActive) {
+          var val = document.querySelector(".motor-slider").value;
+
+          var dictionary = {};
+          dictionary["m"] = val;
+          dictionary["st"] = status;
+          window.pyrepl.write = JSON.stringify(dictionary);
+
+          var received = window.pyrepl.read;
+          //get the last line of the serial reading
+          var lastReceived = received[received.length - 1];
+          var lastJSON = JSON.parse(lastReceived);
+          var sensorVal = Math.round(lastJSON.s);
+
+          //update sensor value on progress bar
+          updateSensor(sensorVal);
+
+          //update sensor value on graph
+          trainGraph.updateSensorVal(sensorVal);
+          playGraph.updateSensorVal(sensorVal);
+
+          //if in play/start mode
+          if (lastJSON.hasOwnProperty("m") && lastJSON.hasOwnProperty("i")) {
+            //go to motor value
+            moveMotor(lastJSON.m);
+            //highlight nearest neighbor
+            playGraph.redraw(lastJSON.i);
+          } else {
+            trainGraph.redraw(-1);
+            playGraph.redraw(-1);
+          }
+        }
+      }
+
+      //functions that run on website load
+      resizeCanvas();
+      updateMotorValLabel();
+      changePage("explore");
+    </script>
+  </body>
+</html>
