@@ -170,7 +170,7 @@
               <div id="slider-items" class="flex-column">
                 <p class="motor-high">180</p>
                 <input
-                  class="motor-slider"
+                  class="motor-slider-p"
                   type="range"
                   min="0"
                   max="180"
@@ -192,7 +192,7 @@
               <div id="slider-items" class="flex-column">
                 <p class="motor-high">180</p>
                 <input
-                  class="motor-slider"
+                  class="motor-slider-i"
                   type="range"
                   min="0"
                   max="180"
@@ -214,7 +214,7 @@
               <div id="slider-items" class="flex-column">
                 <p class="motor-high">180</p>
                 <input
-                  class="motor-slider"
+                  class="motor-slider-d"
                   type="range"
                   min="0"
                   max="180"
@@ -779,11 +779,17 @@
       function runSerial() {
         // should already be connected, but lets double cehck
         if (window.pyrepl && window.pyrepl.isActive) {
-          var val = document.querySelector(".motor-slider").value;
+          var p = document.querySelector(".motor-slider-p").value;
+          var i = document.querySelector(".motor-slider-i").value;
+          var d = document.querySelector(".motor-slider-d").value;
+          var r = document.getElementById("start").value === "Stop"
+          console.log(`PID r: ${p}, ${i}, ${d}, ${r}`)
 
           var dictionary = {};
-          dictionary["m"] = val;
-          dictionary["st"] = status;
+          dictionary["p"] = p;
+          dictionary["i"] = i;
+          dictionary["d"] = d;
+          dictionary["r"] = r;
           window.pyrepl.write = JSON.stringify(dictionary);
 
           var received = window.pyrepl.read;

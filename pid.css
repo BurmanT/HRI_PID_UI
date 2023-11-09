@@ -155,6 +155,29 @@ p {
   border-style: 1px solid #232323;
 }
 
+/* NEW: Distinct motor sliders for P, I, and D */
+.motor-slider-p {
+  -webkit-appearance: slider-vertical;
+  height: 80%;
+  width: 20px;
+  margin: auto 20px;
+  border-style: 1px solid #232323;
+}
+.motor-slider-i {
+  -webkit-appearance: slider-vertical;
+  height: 80%;
+  width: 20px;
+  margin: auto 20px;
+  border-style: 1px solid #232323;
+}
+.motor-slider-d {
+  -webkit-appearance: slider-vertical;
+  height: 80%;
+  width: 20px;
+  margin: auto 20px;
+  border-style: 1px solid #232323;
+}
+
 #train-motor-slider {
   height: 100%;
   grid-row-start: 2;
