@@ -522,22 +522,25 @@
       function setP(val) {
         // Update the P gauge position
         document.querySelector(".gauge-fill-p").style.transform = `rotate(${val/360}turn)`
-
-        // TODO(Mark): record this info or smth
+      }
+      function getP() {
+        return document.querySelector(".motor-slider-p").value;
       }
       // NEW: Called when the user sets the Integral value.
       function setI(val) {
         // Update the P gauge position
         document.querySelector(".gauge-fill-i").style.transform = `rotate(${val/360}turn)`
-
-        // TODO(Mark): record this info or smth
+      }
+      function getI() {
+        return document.querySelector(".motor-slider-i").value;
       }
       // NEW: Called when the user sets the Derivative value.
       function setD(val) {
         // Update the P gauge position
         document.querySelector(".gauge-fill-d").style.transform = `rotate(${val/360}turn)`
-
-        // TODO(Mark): record this info or smth
+      }
+      function getD() {
+        return document.querySelector(".motor-slider-d").value;
       }
 
 
@@ -620,6 +623,7 @@
           dictionary["t"] = 1;
           dictionary["am"] = motorVal;
           dictionary["as"] = sensorVal;
+          console.log(`PRINTING MSG: ${JSON.stringify(dictionary)}`)
           window.pyrepl.write = JSON.stringify(dictionary);
           console.log("ADD VALUE JSON");
         }
@@ -699,12 +703,14 @@
         dictionary["st"] = "t";
         dictionary["t"] = 1;
         dictionary["di"] = i; //delete index
+          console.log(`PRINTING MSG: ${JSON.stringify(dictionary)}`)
         window.pyrepl.write = JSON.stringify(dictionary);
 
         //stop highlighting the point that is deleted
         hoverDeleteIndex = -1;
       }
 
+      /*
       function loadData() {
         //request the loaded data
         var dictionary = {};
@@ -733,7 +739,7 @@
         } else {
           setTimeout(loadData, 250);
         }
-      }
+      }*/
 
       function startStop() {
         const button = document.getElementById("start");
@@ -741,6 +747,7 @@
           var dictionary = {};
           dictionary["st"] = "p";
           dictionary["r"] = 1;
+          console.log(`PRINTING MSG: ${JSON.stringify(dictionary)}`)
           window.pyrepl.write = JSON.stringify(dictionary);
 
           //change the button text and color
@@ -756,6 +763,7 @@
         var dictionary = {};
         dictionary["st"] = status;
         dictionary["r"] = 0;
+          console.log(`PRINTING MSG: ${JSON.stringify(dictionary)}`)
         window.pyrepl.write = JSON.stringify(dictionary);
 
         //change the button text and color
@@ -768,7 +776,7 @@
           console.log("DEVICE CONNECTED: about to reboot");
           window.pyrepl.reboot;
           console.log("before load data");
-          loadData();
+          //loadData();
           console.log("after load data");
           setInterval(runSerial, 150); // connected, start monitoring
         } else {
@@ -779,10 +787,10 @@
       function runSerial() {
         // should already be connected, but lets double cehck
         if (window.pyrepl && window.pyrepl.isActive) {
-          var p = document.querySelector(".motor-slider-p").value;
-          var i = document.querySelector(".motor-slider-i").value;
-          var d = document.querySelector(".motor-slider-d").value;
-          var r = document.getElementById("start").value === "Stop"
+          var p = document.querySelector(".motor-slider-p").value / 1800;
+          var i = document.querySelector(".motor-slider-i").value / 18000000;
+          var d = document.querySelector(".motor-slider-d").value / 18;
+          var r = document.getElementById("start").value === "Stop"? 1 : 0
           console.log(`PID r: ${p}, ${i}, ${d}, ${r}`)
 
           var dictionary = {};
@@ -790,12 +798,19 @@
           dictionary["i"] = i;
           dictionary["d"] = d;
           dictionary["r"] = r;
+          console.log(`PRINTING MSG: ${JSON.stringify(dictionary)}`)
           window.pyrepl.write = JSON.stringify(dictionary);
 
           var received = window.pyrepl.read;
           //get the last line of the serial reading
           var lastReceived = received[received.length - 1];
+          console.log(`RECEIVED MSG: ${lastReceived}`)
           var lastJSON = JSON.parse(lastReceived);
+
+            // m is 0->180 (deg)
+            // s is 300-1400
+
+          // console.log(`RECEIVED MESSAGE: ${JSON.stringify(lastJSON)}`)
           var sensorVal = Math.round(lastJSON.s);
 
           //update sensor value on progress bar
