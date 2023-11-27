@@ -225,14 +225,8 @@
               </div>
             </div>
           </div>
-          <canvas
-            id="play-canvas-graph"
-            class="canvas-graph"
-            width="450"
-            height="350"
-          ></canvas>
 
-          <p id="train-sensor-low" class="sensor-low"></p>
+          <!--<p id="train-sensor-low" class="sensor-low"></p>
           <img id="grid-clockwise-icon" class="clockwise-icon" />
           <div id="train-sensor-bar" class="sensor-bar">
             <div class="sensor-bar-fill"></div>
@@ -243,9 +237,16 @@
           <img
             id="grid-counter-clockwise-icon"
             class="counter-clockwise-icon"
-          />
+          />-->
         </div>
-        <div class="training-values">
+
+          <canvas
+            id="play-canvas-graph"
+            class="canvas-graph"
+            width="450"
+            height="350"
+          ></canvas>
+        <!-- <div class="training-values">
           <div class="dividing-line"></div>
           <h2>Training Values</h2>
           <table>
@@ -255,7 +256,7 @@
             </thead>
             <tbody id="play-table"></tbody>
           </table>
-        </div>
+        </div>-->
       </div>
     </div>
     <script>
@@ -286,18 +287,28 @@
           this.redraw(-1);
         }
 
-        updateSensorVal(sval) {
+        /*updateSensorVal(sval) {
           this.lastSensorVal = sval;
         }
 
         updateMotorVal(mval) {
           this.lastMotorVal = mval;
-        }
+        }*/
 
-        redraw(NNi) {
-          //console.log("Update graph");
+        // m=motor, how much the motor on the left is extended. Normalized, out of 100
+        // s=sensor, how far away the ball is from the left edge of the beam. Normalized, out of 100
+        redraw(m, s) {
+          console.log("Update graph");
+          console.log(`m=${m} s=${s}`)
           this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-          this.drawSensorLine(this.lastSensorVal);
+
+          // Draw the beam
+          this.drawBeam(m)
+
+          // Draw the ball
+          this.drawBall(m, s)
+          
+          /*this.drawSensorLine(this.lastSensorVal);
           this.drawMotorLine(this.lastMotorVal);
           for (var i = 0; i < sensorArray.length; i++) {
             this.drawPoint(sensorArray[i], motorArray[i]);
@@ -307,7 +318,85 @@
           }
           if (hoverDeleteIndex != -1) {
             this.highlightDelete(hoverDeleteIndex);
-          }
+          }*/
+        }
+
+        // Given the motor position, returns:
+        // [startX, startY, endX, endY]
+        // as the GRAPHICAL coordinates in the canvas of the beam
+        beamCoords(m) {
+          console.log(`Canvas Size: ${this.canvas.width}x${this.canvas.height}`)
+          const coords = [this.convertX(10), this.convertY(m), this.convertX(90), this.convertY(50)]
+          console.log(`Beam coords: ${coords}`)
+          return coords
+        }
+
+        // From chatGPT because I forgot trig
+        // d is distance from the starting coordinates.
+        // r is the radius of the ball.
+        findPointOnLineWithBall(startX, startY, endX, endY, d, r) {
+          // Calculate the direction vector
+          let dx = endX - startX;
+          let dy = endY - startY;
+
+          // Calculate the length of the vector
+          let length = Math.sqrt(dx * dx + dy * dy);
+
+          // Normalize the vector
+          let ndx = dx / length;
+          let ndy = dy / length;
+
+          // Scale the normalized vector by distance 'd'
+          let sdx = ndx * d;
+          let sdy = ndy * d;
+
+          // Determine the new point
+          let pointX = startX + sdx;
+          let pointY = startY + sdy;
+
+          // Adjust the point to account for the radius of the ball
+          // We need a vector perpendicular to (ndx, ndy). If (ndx, ndy) is normalized, then (-ndy, ndx) or (ndy, -ndx) are perpendicular to it.
+          pointX += ndy * r;
+          pointY += -ndx * r;
+
+          return [ pointX, pointY ];
+        }
+
+        // Given the motor position and ball position, returns:
+        // [x, y, radius]
+        // as the GRAPHICAL coordinates in the canvas of the ball
+        // r is radius of the ball
+        ballCoords(m, s, r) {
+          // Start by getting the beam coordinates
+          const [startX, startY, endX, endY] = this.beamCoords(m)
+
+          // Find where the ball should go.
+          return this.findPointOnLineWithBall(startX, startY, endX, endY, s, r)
+        }
+
+        drawBeam(m) {
+          let [startX, startY, endX, endY] = this.beamCoords(m)
+          this.ctx.beginPath();
+          this.ctx.lineWidth = 4;
+          this.ctx.strokeStyle = "#FFD65C";
+          this.ctx.moveTo(startX, startY);
+          this.ctx.lineTo(endX, endY);
+          this.ctx.stroke();
+        }
+
+        drawBall(m, s) {
+          // Radius of the ball
+          const r = 10
+          const [pointX, pointY] = this.ballCoords(m, s, r)
+          console.log(`Ball distance: ${s}`)
+          console.log(`Ball coordinates: ${pointX}, ${pointY}`)
+          this.ctx.beginPath()
+          this.ctx.arc(pointX, pointY, r, r, 0, 2 * Math.PI, false)
+          this.ctx.fillStyle = "#FF0000"
+          this.ctx.fill()
+          // this.ctx.ellipse()
+          this.ctx.strokeStyle = "#FF0000"
+          this.ctx.stroke()
         }
 
         highlightDelete(i) {
@@ -329,14 +418,14 @@
         }
 
         convertX(x) {
-          // Assume the svals are 0-100 convert to a scale - start to bw-start
+          // Assume the svals are 0-100
           const cx = this.canvas.width * (x / 100);
           return cx;
         }
 
         convertY(y) {
-          // Assume the svals are 0-100 convert to a scale - start to bh-start
-          const cy = (this.canvas.height * (180 - y)) / 180;
+          // Assume the svals are 0-100
+          const cy = this.canvas.height * (y / 100);
           return cy;
         }
 
@@ -400,8 +489,17 @@
       trainGraph = new Graph(trainCanvas);
       playGraph = new Graph(playCanvas);
 
-      trainGraph.redraw(-1);
-      playGraph.redraw(-1);
+      var t=0
+      setInterval(() => {
+        console.log("Triggered")
+        let variance = Math.sin(t/100)
+        console.log(`Variance: ${variance}`)
+        playGraph.redraw(50 + variance*25, variance*25 + 110)
+        t++
+      }, 12)
+
+      //trainGraph.redraw(-1);
+      //playGraph.redraw(-1);
 
       //hide and show the div for each page when the user clicks on tabs
       function changePage(pageName) {
@@ -470,7 +568,7 @@
         );
 
         trainGraph.redraw(-1);
-        playGraph.redraw(-1);
+        // playGraph.redraw(-1);
       }
 
       //change the dichotomy labels based on the selected sensor
@@ -563,7 +661,7 @@
         playGraph.updateMotorVal(val);
 
         trainGraph.redraw(-1);
-        playGraph.redraw(-1);
+        // playGraph.redraw(-1);
       }
 
       function updateMotorValLabel() {
@@ -674,7 +772,7 @@
 
         //redraw the graphs
         trainGraph.redraw(-1);
-        playGraph.redraw(-1);
+        // playGraph.redraw(-1);
       }
 
       function deleteValue(deleteButton) {
@@ -692,7 +790,7 @@
         sensorArray.splice(i, 1);
         motorArray.splice(i, 1);
         trainGraph.redraw(-1);
-        playGraph.redraw(-1);
+        // playGraph.redraw(-1);
 
         console.log("delete index");
         console.log(i);
@@ -821,14 +919,14 @@
           playGraph.updateSensorVal(sensorVal);
 
           //if in play/start mode
-          if (lastJSON.hasOwnProperty("m") && lastJSON.hasOwnProperty("i")) {
+          if (lastJSON.hasOwnProperty("m") && lastJSON.hasOwnProperty("s")) {
             //go to motor value
-            moveMotor(lastJSON.m);
+            // moveMotor(lastJSON.m);
             //highlight nearest neighbor
-            playGraph.redraw(lastJSON.i);
+            playGraph.redraw(lastJSON);
           } else {
-            trainGraph.redraw(-1);
-            playGraph.redraw(-1);
+            // trainGraph.redraw(-1);
+            //playGraph.redraw(-1);
           }
         }
       }
